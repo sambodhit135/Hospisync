@@ -53,7 +53,10 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/api/patient/request",
                                 "/api/patient/request/*/status",
-                                "/api/patient/recommend"
+                                "/api/patient/recommend",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/patient/request/*").permitAll()
                         .anyRequest().authenticated()
