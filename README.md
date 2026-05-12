@@ -163,7 +163,7 @@ API docs are automatically generated and available at **http://localhost:8080/sw
 > (10/25) with rapid census sync capability.
 
 **Regional Network Census — Live Map**
-![Regional Network Census](screenshot/regional-network-census.jpeg)
+![Regional Network Census](screenshots/regional-network-census.jpeg)
 > Geographic load distribution map showing all registered 
 > hospital nodes across Nagpur with real-time intensity indicators.
 
@@ -172,13 +172,13 @@ API docs are automatically generated and available at **http://localhost:8080/sw
 ### 👨‍⚕️ Doctor & Clinical Staff Management
 
 **Doctor Management Dashboard**
-![Clinical Staff Management](screenshot/clinical-staff-management.jpeg)
+![Clinical Staff Management](screenshots/clinical-staff-management.jpeg)
 > Full roster view: 3 doctors active, 0 at capacity, 
 > 3 specialities. Filter by name, speciality, and status 
 > with inline patient load tracking.
 
 **Doctor Profile Cards — Patient Load**
-![Doctor Profiles](screenshot/doctor-profiles.jpeg)
+![Doctor Profiles](screenshots/doctor-profiles.jpeg)
 > Individual doctor cards showing real-time patient load 
 > (3/12, 5/12, 0/12), shift status, credentials, 
 > and inline count update controls.
@@ -188,13 +188,13 @@ API docs are automatically generated and available at **http://localhost:8080/sw
 ### 🚑 Patient Transfers & Notifications
 
 **Patient Transfer Dashboard**
-![Patient Transfer Dashboard](screenshot/patient-transfer-dashboard.jpeg)
+![Patient Transfer Dashboard](screenshots/patient-transfer-dashboard.jpeg)
 > Complete inter-hospital transfer log with origin, 
 > census load, timestamps, and APPROVED/REJECTED protocol 
 > status. Live sync confirmation toast visible.
 
 **Notification Center — Emergency Alerts**
-![Notification Center](screenshot/notification-center.jpeg)
+![Notification Center](screenshots/notification-center.jpeg)
 > Real-time notification feed: emergency transfer 
 > requests from Nagpur Government Medical College 
 > with 2-minute acknowledgement window alerts.
@@ -204,14 +204,14 @@ API docs are automatically generated and available at **http://localhost:8080/sw
 ### 🤖 AI Recommendation Engine & Predictive Analytics
 
 **AI Recommendation Engine — Heuristic Best Fit**
-![AI Recommendation Engine](screenshot/ai-recommendation-engine.jpeg)
+![AI Recommendation Engine](screenshots/ai-recommendation-engine.jpeg)
 > Heuristic-based clinical load balancing engine: 
 > recommends Hingna District Hospital (Match Index: 200.52, 
 > 64 units, 3.2km, 5 min) at 94% AI Engine Optimization Level.
 > Filters by radius, speciality, and unit type (ICU/Daycare/Ward).
 
 **Predictive Analytics — Load Forecasting**
-![Predictive Analytics Dashboard](screenshot/predictive-analytics-dashboard.jpeg)
+![Predictive Analytics Dashboard](screenshots/predictive-analytics-dashboard.jpeg)
 > 7-day moving average regression model predicting 
 > 29 inbound admissions in next 24 hours with 
 > 94.2% confidence. Demand trajectory chart with 
