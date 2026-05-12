@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>HospiSync — Clinical Roster</title>
+    <meta name="description" content="HospiSync — Intelligent Hospital Load Forecasting and Patient Distribution System. Monitor beds, predict load, transfer patients.">
+    
+    <!-- Design System: Clinical Precision -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#004ac6",
+                        "primary-container": "#1b4f9b",
+                        "secondary": "#1E3A5F",
+                        "background": "#f2f4f6",
+                        "surface": "#ffffff",
+                        "error": "#ba1a1a",
+                        "success": "#22c55e",
+                        "warning": "#f59e0b",
+                        "on-surface-variant": "#434751"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "12px", "lg": "12px", "xl": "1rem", "full": "9999px"},
+                    boxShadow: {
+                        "ambient": "0 2px 8px rgba(0,0,0,0.08)",
+                        "bold": "0 4px 12px rgba(0,0,0,0.12)"
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .nav-item.active { background: #2A4E7D; border-left: 4px solid #3b82f6; color: white !important; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); }
+        
+        /* Modal and Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(240, 244, 248, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+        .loading-overlay.active { display: flex; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #004ac6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed;
+            top: 24px; right: 24px;
+            z-index: 10000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            align-items: center; gap: 8px;
+        }
+        .toast.active { display: flex; }
+        .toast.success { background: #008744; color: white; }
+        .toast.error { background: #ba1a1a; color: white; }
+
+        .cta-button {
+            min-height: 48px;
+            min-width: 48px;
+            padding: 12px 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapsible-content.expanded { max-height: 1000px; }
+
+        label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: block; }
+        input, select { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-size: 14px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #f8fafc; }
+        input:focus, select:focus { border-color: #004ac6; box-shadow: 0 0 0 3px rgba(0,74,198,0.1); outline: none; background: white; }
+
+        /* Elite Modal System */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 39, 68, 0.3);
+            backdrop-filter: blur(12px);
+            z-index: 10002;
+            align-items: center; justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-container {
+            background: white;
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(15, 39, 68, 0.25);
+            overflow-y: auto;
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
+        
+        .form-section-header {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Card Elite Style */
+        .doctor-card {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .doctor-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(15, 39, 68, 0.1), 0 10px 10px -5px rgba(15, 39, 68, 0.04);
+        }
+    </style>
+
+    <script src="/js/api.js"></script>
+    <script>
+        if (!isLoggedIn()) {
+            window.location.href = '/login.html';
+        }
+    </script>
+</head>
+<body class="bg-background text-slate-900 font-body">
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar h-screen w-64 fixed left-0 top-0 flex flex-col bg-secondary text-white/70 z-[1001]">
+        <div class="p-6 mb-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">medical_services</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-white tracking-tighter">HospiSync</h2>
+                <p class="text-[10px] text-white/40 uppercase font-black">Clinical Care v1.0</p>
+            </div>
+        </div>
+        
+        <nav class="flex-1 space-y-1">
+            <button class="nav-item w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors text-white/70 hover:text-white hover:bg-[var(--bg-card)]/10" onclick="location.href='/dashboard.html'">
+                <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
+                <span class="font-semibold">Dashboard</span>
+            </button>
+            <button class="nav-item w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors text-white/70 hover:text-white hover:bg-[var(--bg-card)]/10" onclick="location.href='/dashboard.html?section=beds'">
+                <span class="material-symbols-outlined" aria-hidden="true">bed</span>
+                <span class="font-semibold">Bed Management</span>
+            </button>
+            <button class="nav-item active w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors text-white/70 hover:text-white hover:bg-[var(--bg-card)]/10">
+                <span class="material-symbols-outlined" aria-hidden="true">stethoscope</span>
+                <span class="font-semibold">Doctors</span>
+            </button>
+            <button class="nav-item w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors text-white/70 hover:text-white hover:bg-[var(--bg-card)]/10" onclick="location.href='/dashboard.html?section=forecast'">
+                <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
+                <span class="font-semibold">Load Forecast</span>
+            </button>
+            
+            <div class="px-6 mt-8 mb-2 text-[10px] font-black text-white/30 uppercase tracking-widest">Operations</div>
+            
+            <button class="nav-item w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors hover:text-white hover:bg-white/10" onclick="location.href='/dashboard.html?section=recommend'">
+                <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+                <span class="font-semibold text-sm">Recommendations</span>
+            </button>
+            <button class="nav-item w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors hover:text-white hover:bg-white/10" onclick="location.href='/dashboard.html?section=transfer'">
+                <span class="material-symbols-outlined" aria-hidden="true">move_group</span>
+                <span class="font-semibold text-sm">Patient Transfer</span>
+            </button>
+            <button class="nav-item w-[calc(100%-16px)] mx-2 px-4 py-3 rounded-md flex items-center gap-3 transition-colors hover:text-white hover:bg-white/10" onclick="location.href='/dashboard.html?section=notifications'">
+                <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+                <span class="font-semibold text-sm">Notifications</span>
+            </button>
+        </nav>
+        
+        <div class="p-4 border-t border-white/5">
+            <button class="text-white/60 hover:text-white flex items-center gap-3 w-full px-4 py-3 rounded-md" onclick="clearAuth(); window.location.href='/login.html'">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                <span class="font-semibold text-sm">Sign Out</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="ml-64 p-8 min-h-screen" style="padding-top: 100px;">
+        
+        <!-- Header -->
+        <header class="fixed top-0 right-0 left-64 h-16 flex items-center px-8 bg-white/70 backdrop-blur-2xl border-b border-slate-200/60 z-[1000] justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <button class="lg:hidden p-2 text-slate-500 icon-button" onclick="toggleSidebar()" aria-label="Toggle sidebar navigation">
+                    <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+                </button>
+                <div class="flex flex-col">
+                    <h2 class="text-xl font-black tracking-tight text-slate-900 font-headline">Doctor Management</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.4)] animate-pulse"></span>
+                        <span class="text-[9px] text-slate-400 font-black uppercase tracking-widest" id="headerLastUpdated">SYSTEM ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="relative w-64 group">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base group-focus-within:text-primary transition-colors">search</span>
+                    <input class="w-full bg-slate-100/50 border-2 border-transparent focus:border-primary/10 focus:bg-white rounded-xl py-2 pl-12 pr-4 text-[11px] font-semibold transition-all shadow-inner" placeholder="Search roster..." type="text" id="globalSearch"/>
+                </div>
+                <div class="relative">
+                    <button class="material-symbols-outlined text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl p-2 transition-all cursor-pointer icon-button" aria-label="View notifications">
+                        notifications
+                    </button>
+                    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error rounded-full border-2 border-white"></span>
+                </div>
+                <div class="flex items-center gap-4 pl-6 border-l border-slate-200/60">
+                    <div class="text-right">
+                        <p class="text-[11px] font-black uppercase tracking-tighter text-slate-900 leading-none mb-1" id="headerHospitalName">Hospital Name</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Medical Admin</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black shadow-lg shadow-primary/20 hover:scale-105 transition-transform" id="headerAvatar">H</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-4 gap-6 mb-6 mt-4">
+            <div class="bg-white p-5 rounded-2xl shadow-ambient border-2 border-slate-50 hover:border-primary/20 transition-all group overflow-hidden relative">
+                <div class="relative z-10 text-wrap">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-primary"></span> TOTAL DOCTORS
+                    </p>
+                    <div class="flex justify-between items-end">
+                        <h3 class="text-2xl font-black tracking-tighter font-headline" id="statTotalDoctors">0</h3>
+                        <div class="bg-primary/5 w-10 h-10 rounded-xl flex items-center justify-center text-primary transition-all rotate-3">
+                            <span class="material-symbols-outlined text-xl">medical_services</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 text-primary/[0.03] transform rotate-12 group-hover:scale-110 transition-transform duration-700">
+                    <span class="material-symbols-outlined text-6xl">medical_services</span>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-ambient border-2 border-slate-50 hover:border-success/20 transition-all group overflow-hidden relative">
+                <div class="relative z-10 text-wrap">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-success"></span> AVAILABLE NOW
+                    </p>
+                    <div class="flex justify-between items-end">
+                        <h3 class="text-2xl font-black tracking-tighter text-success font-headline" id="statAvailable">0</h3>
+                        <div class="bg-success/5 w-10 h-10 rounded-xl flex items-center justify-center text-success transition-all -rotate-3">
+                            <span class="material-symbols-outlined text-xl">person_check</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 text-success/[0.03] transform rotate-12 group-hover:scale-110 transition-transform duration-700">
+                    <span class="material-symbols-outlined text-6xl">person_check</span>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-ambient border-2 border-slate-50 hover:border-error/20 transition-all group overflow-hidden relative">
+                <div class="relative z-10 text-wrap">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-error"></span> AT CAPACITY
+                    </p>
+                    <div class="flex justify-between items-end">
+                        <h3 class="text-2xl font-black tracking-tighter text-error font-headline" id="statAtLimit">0</h3>
+                        <div class="bg-error/5 w-10 h-10 rounded-xl flex items-center justify-center text-error transition-all rotate-6">
+                            <span class="material-symbols-outlined text-xl">block</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 text-error/[0.03] transform rotate-12 group-hover:scale-110 transition-transform duration-700">
+                    <span class="material-symbols-outlined text-6xl">block</span>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-ambient border-2 border-slate-50 hover:border-purple-500/20 transition-all group overflow-hidden relative">
+                <div class="relative z-10 text-wrap">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-3 h-0.5 bg-purple-500"></span> SPECIALITIES
+                    </p>
+                    <div class="flex justify-between items-end">
+                        <h3 class="text-2xl font-black tracking-tighter text-purple-600 font-headline" id="statSpecialities">0</h3>
+                        <div class="bg-purple-500/5 w-10 h-10 rounded-xl flex items-center justify-center text-purple-500 transition-all -rotate-6">
+                            <span class="material-symbols-outlined text-xl">clinical_notes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-4 -bottom-4 text-purple-500/[0.03] transform rotate-12 group-hover:scale-110 transition-transform duration-700">
+                    <span class="material-symbols-outlined text-6xl">clinical_notes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6 p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between shadow-sm group hover:border-primary/20 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 transition-all group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20">
+                    <span class="material-symbols-outlined text-2xl font-light">person_add</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-800 tracking-tight leading-none mb-1">Clinical Staff Onboarding</h3>
+                    <p class="text-[11px] text-slate-500 font-medium">Add medical professionals to the roster system</p>
+                </div>
+            </div>
+            
+            <button onclick="openAddModal()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-900/90 text-white text-[11px] font-bold rounded-xl hover:bg-primary hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95">
+                <span class="material-symbols-outlined text-sm">add</span>
+                Enroll professional
+            </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="glass-card mb-6 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm border border-slate-100">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Search Filter -->
+                <div class="relative w-64">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">person_search</span>
+                    <input class="w-full bg-slate-50/50 border-2 border-slate-100/30 focus:border-primary/10 transition-all rounded-xl py-2 pl-10 pr-4 text-[11px] font-bold" id="filterSearch" placeholder="Filter by name..." type="text"/>
+                </div>
+
+                <!-- Speciality Filter -->
+                <div class="relative w-56">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">clinical_notes</span>
+                    <select class="w-full bg-slate-50/50 border-2 border-slate-100/30 focus:border-primary/10 transition-all rounded-xl py-2 pl-10 pr-4 text-[11px] font-bold appearance-none" id="filterSpeciality">
+                        <option value="">All Specialities</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="relative w-56">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">monitoring</span>
+                    <select class="w-full bg-slate-50/50 border-2 border-slate-100/30 focus:border-primary/10 transition-all rounded-xl py-2 pl-10 pr-4 text-[11px] font-bold appearance-none" id="filterStatus">
+                        <option value="">All Statuses</option>
+                        <option value="AVAILABLE">Available Now</option>
+                        <option value="NEAR_LIMIT">Near Capacity</option>
+                        <option value="AT_LIMIT">At Capacity</option>
+                    </select>
+                </div>
+            </div>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100" id="resultsCount">Showing 0 doctors</p>
+        </div>
+
+        <!-- Doctor Grid -->
+        <div id="doctorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Cards populated by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-20 bg-white rounded-xl shadow-ambient border border-dashed border-slate-300">
+            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4">
+                <span class="material-symbols-outlined text-4xl">person_search</span>
+            </div>
+            <h3 class="font-bold text-slate-900 mb-1">No doctors added yet</h3>
+            <p class="text-sm text-slate-500 mb-6">Start building your medical roster to manage patient throughput.</p>
+            <button class="text-primary font-bold text-sm hover:underline" onclick="document.getElementById('toggleAddFormBtn').click()">+ Add First Doctor</button>
+        </div>
+
+    </main>
+
+    <div class="modal-overlay" id="addDoctorModal">
+        <div class="modal-container">
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">person_add</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900 tracking-tight">Onboard Professional</h3>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Enrollment into clinical network</p>
+                    </div>
+                </div>
+                <button onclick="closeAddModal()" class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form id="addDoctorForm" class="p-8 space-y-8">
+                <div class="space-y-6">
+                    <h4 class="form-section-header"><span class="material-symbols-outlined text-sm">badge</span> Professional Identity</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2">
+                            <label for="doctorName">Full Legal Name *</label>
+                            <input type="text" id="doctorName" class="w-full" required placeholder="e.g. Dr. Sarah Jenkins">
+                        </div>
+                        <div>
+                            <label for="doctorEmail">Work Email</label>
+                            <input type="email" id="doctorEmail" class="w-full" placeholder="doctor@hospital.com">
+                        </div>
+                        <div>
+                            <label for="doctorPhone">Contact Number</label>
+                            <input type="tel" id="doctorPhone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10" class="w-full" placeholder="e.g. 9876543210">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h4 class="form-section-header"><span class="material-symbols-outlined text-sm">clinical_notes</span> Expertise & Capacity</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-1">
+                            <label for="doctorSpeciality">Clinical Speciality *</label>
+                            <select id="doctorSpeciality" class="w-full" required></select>
+                            <div id="customSpecialityContainer" class="hidden mt-2">
+                                <input type="text" id="docCustomSpeciality" class="w-full" placeholder="Enter custom speciality...">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="doctorQualification">Main Qualification</label>
+                            <input type="text" id="doctorQualification" class="w-full" placeholder="MBBS, MD, MS...">
+                        </div>
+                        <div>
+                            <label for="doctorExperience">Clinical Experience (Years)</label>
+                            <input type="number" id="doctorExperience" class="w-full" min="0" placeholder="e.g. 5">
+                        </div>
+                        <div>
+                            <label for="doctorSafeLimit">Safe Patient Load</label>
+                            <input type="number" id="doctorSafeLimit" class="w-full" value="12" min="1">
+                        </div>
+                        <div>
+                            <label for="doctorAvailabilityType">Initial Status</label>
+                            <select id="doctorAvailabilityType" class="w-full">
+                                <option value="PRESENT">Active / Present</option>
+                                <option value="ON_CALL">On-Call</option>
+                                <option value="OFF_DUTY">Off-Duty / Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h4 class="form-section-header"><span class="material-symbols-outlined text-sm">schedule</span> Rostering & Shift</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label for="doctorShiftStart">Shift Start</label>
+                            <input type="time" id="doctorShiftStart" class="w-full" value="08:00">
+                        </div>
+                        <div>
+                            <label for="doctorShiftEnd">Shift End</label>
+                            <input type="time" id="doctorShiftEnd" class="w-full" value="16:00">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="doctorWorkDays">Standard Work Days</label>
+                            <input type="text" id="doctorWorkDays" class="w-full" placeholder="e.g. MON,TUE,WED" value="MON,TUE,WED,THU,FRI">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 flex gap-4">
+                    <button type="button" onclick="closeAddModal()" class="flex-1 px-6 py-4 border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-[2] px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                        Add
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Doctor Modal -->
+    <div class="modal-overlay" id="editDoctorModal">
+        <div class="modal-container">
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">edit_square</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900 tracking-tight">Modify Records</h3>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Update professional information</p>
+                    </div>
+                </div>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form id="editDoctorForm" class="p-8 space-y-8">
+                <input type="hidden" id="editDoctorId">
+                <div class="space-y-6">
+                    <h4 class="form-section-header"><span class="material-symbols-outlined text-sm">badge</span> Professional Identity</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2">
+                            <label for="editDoctorName">Full Legal Name *</label>
+                            <input type="text" id="editDoctorName" class="w-full" required>
+                        </div>
+                        <div>
+                            <label for="editDoctorEmail">Work Email</label>
+                            <input type="email" id="editDoctorEmail" class="w-full">
+                        </div>
+                        <div>
+                            <label for="editDoctorPhone">Contact Number</label>
+                            <input type="tel" id="editDoctorPhone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10" class="w-full" placeholder="e.g. 9876543210">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h4 class="form-section-header"><span class="material-symbols-outlined text-sm">clinical_notes</span> Expertise & Capacity</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-1">
+                            <label for="editDoctorSpeciality">Clinical Speciality *</label>
+                            <select id="editDoctorSpeciality" class="w-full" required></select>
+                        </div>
+                        <div>
+                            <label for="editDoctorQualification">Main Qualification</label>
+                            <input type="text" id="editDoctorQualification" class="w-full">
+                        </div>
+                        <div>
+                            <label for="editDoctorExperience">Clinical Experience (Years)</label>
+                            <input type="number" id="editDoctorExperience" class="w-full" min="0">
+                        </div>
+                        <div>
+                            <label for="editDoctorSafeLimit">Safe Patient Load</label>
+                            <input type="number" id="editDoctorSafeLimit" class="w-full" min="1">
+                        </div>
+                        <div>
+                            <label for="editDoctorAvailabilityType">Availability Status</label>
+                            <select id="editDoctorAvailabilityType" class="w-full">
+                                <option value="PRESENT">Active / Present</option>
+                                <option value="ON_CALL">On-Call</option>
+                                <option value="OFF_DUTY">Off-Duty / Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h4 class="form-section-header"><span class="material-symbols-outlined text-sm">schedule</span> Rostering & Shift</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label for="editDoctorShiftStart">Shift Start</label>
+                            <input type="time" id="editDoctorShiftStart" class="w-full">
+                        </div>
+                        <div>
+                            <label for="editDoctorShiftEnd">Shift End</label>
+                            <input type="time" id="editDoctorShiftEnd" class="w-full">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="editDoctorWorkDays">Standard Work Days</label>
+                            <input type="text" id="editDoctorWorkDays" class="w-full" placeholder="e.g. MON,TUE,WED">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-6 flex gap-4">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 px-6 py-4 border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-[2] px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                        Update Records
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/doctors.js"></script>
+</body>
+</html>

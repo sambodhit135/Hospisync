@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HospiSync — Intelligent Hospital Management</title>
+    <meta name="description" content="HospiSync — Intelligent Hospital Load Forecasting and Patient Distribution System. Monitor beds, predict load, transfer patients.">
+    
+    <!-- Design System: Clinical Professional -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#004ac6',
+                        navy: '#0F2744',
+                        background: '#F0F4F8',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'xl': '12px',
+                    },
+                    boxShadow: {
+                        'clinical': '0 2px 8px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F4F8;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #0F2744 0%, #004ac6 100%);
+        }
+        .cta-button {
+            transition: all 0.3s ease;
+            min-height: 48px;
+            min-width: 48px;
+            padding: 12px 24px;
+        }
+        .icon-button {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .step-arrow::after {
+            content: '→';
+            position: absolute;
+            right: -2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #CBD5E1;
+            font-size: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .step-arrow::after { content: ''; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- SECTION 1 — NAVIGATION BAR -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🏥</span>
+                    <span class="text-xl font-display font-extrabold text-navy tracking-tight">HospiSync</span>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3">
+                    <a href="/login.html" class="hidden sm:block px-4 py-2 text-sm font-semibold text-primary border border-primary rounded-xl hover:bg-primary/5 transition-colors">
+                        Hospital Login
+                    </a>
+                    <a href="/register.html" class="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
+                        Register Hospital
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SECTION 2 — HERO -->
+    <section class="pt-32 pb-20 hero-gradient text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+                Connecting Hospitals.<br>Saving Critical Time.
+            </h1>
+            <p class="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed">
+                HospiSync helps hospitals find available beds and specialist doctors at nearby hospitals instantly — and helps patients find the right hospital near them in seconds.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+                <!-- Hospital CTA -->
+                <a href="/register.html" aria-label="Hospital management portal" class="cta-button group bg-white text-navy p-1 rounded-xl flex items-center text-left hover:shadow-2xl hover:shadow-white/10">
+                    <div class="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center mr-4 ml-1 text-primary">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <rect x="2" y="7" width="20" height="14" rx="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                            <path d="M9 11h2m2 0h2M11 9v2m0 2v2"/>
+                        </svg>
+                    </div>
+                    <div class="pr-6 py-2">
+                        <div class="font-bold text-lg">I am a Hospital</div>
+                        <div class="text-xs text-slate-500">Register or manage your facility</div>
+                    </div>
+                </a>
+                
+                <!-- Patient CTA -->
+                <a href="/patient.html" aria-label="Find nearest hospital" class="cta-button group border-2 border-blue-400/30 text-white p-1 rounded-xl flex items-center text-left hover:bg-white/5">
+                    <div class="bg-blue-600/20 w-12 h-12 rounded-lg flex items-center justify-center mr-4 ml-1 text-white">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                            <path d="M12 11.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="pr-6 py-2">
+                        <div class="font-bold text-lg text-white">I Need a Hospital</div>
+                        <div class="text-xs text-blue-200">Find nearest hospital with available specialist</div>
+                    </div>
+                </a>
+            </div>
+            <p class="text-sm text-blue-300">No registration required for patients</p>
+        </div>
+    </section>
+
+    <!-- SECTION 3 — WHAT IS HOSPISYNC -->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-navy mb-4">What is HospiSync?</h2>
+                <p class="text-slate-500 text-lg">A real-time hospital coordination platform for India</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="p-8 bg-background rounded-xl border border-slate-100 hover:shadow-clinical transition-shadow">
+                    <div class="text-red-500 mb-4" aria-hidden="true">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy mb-3">The Current Problem</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        When a hospital is full, staff make phone calls to find available beds. Each call takes 5-10 minutes. Critical time is lost.
+                    </p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="p-8 bg-background rounded-xl border border-slate-100 hover:shadow-clinical transition-shadow">
+                    <div class="text-green-500 mb-4" aria-hidden="true">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy mb-3">HospiSync Solution</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Hospitals see each other's real-time bed count, doctor availability, and specialist status — all in one place, instantly.
+                    </p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="p-8 bg-background rounded-xl border border-slate-100 hover:shadow-clinical transition-shadow">
+                    <div class="text-amber-500 mb-4" aria-hidden="true">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m12.72-12.72l-1.41 1.41M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy mb-3">What Makes Us Different</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        We show real-time beds AND doctor availability together — without login, for the public. No other platform in India does this.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4 — HOW HOSPITAL MODULE WORKS -->
+    <section class="py-24 bg-background">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-navy mb-4">For Hospitals</h2>
+                <p class="text-slate-500 text-lg">Complete facility management and intelligent patient transfer</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+                <!-- Step 1 -->
+                <div class="relative step-arrow">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200">
+                        <div class="text-primary mb-4" aria-hidden="true">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </div>
+                        <h4 class="font-bold text-navy mb-2">Register</h4>
+                        <p class="text-sm text-slate-500">Register your hospital with departments, beds, and doctors</p>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative step-arrow">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200">
+                        <div class="text-primary mb-4" aria-hidden="true">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <h4 class="font-bold text-navy mb-2">Monitor</h4>
+                        <p class="text-sm text-slate-500">Real-time dashboard shows bed occupancy, doctor workload, and load forecasting</p>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative step-arrow">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200">
+                        <div class="text-primary mb-4" aria-hidden="true">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
+                        <h4 class="font-bold text-navy mb-2">Find & Transfer</h4>
+                        <p class="text-sm text-slate-500">When full, find nearest hospital with available beds and matching specialist instantly</p>
+                    </div>
+                </div>
+                <!-- Step 4 -->
+                <div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200">
+                        <div class="text-primary mb-4" aria-hidden="true">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <h4 class="font-bold text-navy mb-2">Timed Confirmation</h4>
+                        <p class="text-sm text-slate-500">Two-stage timer ensures receiving hospital acknowledges and assigns a doctor before transfer</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Badges -->
+            <div class="flex flex-wrap justify-center gap-4">
+                <span class="px-4 py-2 bg-navy text-white text-xs font-bold rounded-full uppercase tracking-wider">🤖 AI Scoring Algorithm</span>
+                <span class="px-4 py-2 bg-navy text-white text-xs font-bold rounded-full uppercase tracking-wider">👨‍⚕️ Doctor Shift Scheduling</span>
+                <span class="px-4 py-2 bg-navy text-white text-xs font-bold rounded-full uppercase tracking-wider">📈 7-Day Load Forecast</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5 — HOW PATIENT MODULE WORKS -->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-navy mb-4">For Patients & Families</h2>
+                <p class="text-slate-500 text-lg">Find the right hospital near you in seconds — no registration</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-50 text-primary flex items-center justify-center rounded-2xl mx-auto mb-6" aria-hidden="true">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <h4 class="font-bold text-navy text-xl mb-3">Share Location</h4>
+                    <p class="text-slate-500">Allow location access or enter your area manually</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-50 text-primary flex items-center justify-center rounded-2xl mx-auto mb-6" aria-hidden="true">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <h4 class="font-bold text-navy text-xl mb-3">Select Specialist</h4>
+                    <p class="text-slate-500">Choose the type of doctor you need — Cardiology, Neurology, General and more</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-50 text-primary flex items-center justify-center rounded-2xl mx-auto mb-6" aria-hidden="true">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><path d="M9 11h2m2 0h2M11 9v2m0 2v2"/></svg>
+                    </div>
+                    <h4 class="font-bold text-navy text-xl mb-3">Find & Go</h4>
+                    <p class="text-slate-500">See nearest hospitals with available beds and present doctors. Call directly or get directions.</p>
+                </div>
+            </div>
+            
+            <!-- Highlight Box -->
+            <div class="bg-blue-50 border border-blue-100 p-8 rounded-2xl text-center max-w-4xl mx-auto">
+                <p class="text-primary font-extrabold text-xl md:text-2xl">
+                    "No forms. No waiting. No registration.<br class="hidden sm:block"> Just find the right hospital and go."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6 — STATS SECTION -->
+    <section class="py-16 bg-navy text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-4xl font-extrabold text-blue-400 mb-2">2 min</div>
+                    <div class="text-sm text-blue-200 uppercase tracking-widest font-semibold font-display">Hospital response time</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-extrabold text-blue-400 mb-2">Real-time</div>
+                    <div class="text-sm text-blue-200 uppercase tracking-widest font-semibold font-display">Bed availability updates</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-extrabold text-blue-400 mb-2">0</div>
+                    <div class="text-sm text-blue-200 uppercase tracking-widest font-semibold font-display">Registrations for patients</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-extrabold text-blue-400 mb-2">3 layers</div>
+                    <div class="text-sm text-blue-200 uppercase tracking-widest font-semibold font-display">Doctor safety protection</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7 — TWO CLEAR PATHS -->
+    <section class="py-24 bg-background">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-navy mb-4">Get Started</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Card 1 — Hospital -->
+                <div class="bg-navy text-white p-10 rounded-xl relative overflow-hidden group">
+                    <div class="absolute -top-10 -right-10 text-9xl text-white/5 font-bold group-hover:scale-110 transition-transform duration-500">🏥</div>
+                    <div class="relative z-10">
+                        <div class="text-5xl mb-6">🏥</div>
+                        <h3 class="text-2xl font-bold mb-3 font-display">I am a Hospital Admin</h3>
+                        <p class="text-blue-200 mb-8">Register your facility and join the HospiSync network</p>
+                        <ul class="space-y-3 mb-10">
+                            <li class="flex items-center gap-3 text-sm"><span class="text-blue-400">✓</span> Real-time bed management</li>
+                            <li class="flex items-center gap-3 text-sm"><span class="text-blue-400">✓</span> Doctor shift scheduling</li>
+                            <li class="flex items-center gap-3 text-sm"><span class="text-blue-400">✓</span> Smart transfer recommendations</li>
+                            <li class="flex items-center gap-3 text-sm"><span class="text-blue-400">✓</span> Load forecasting</li>
+                        </ul>
+                        <a href="/register.html" class="block w-full text-center bg-white text-navy py-4 rounded-xl font-bold hover:bg-blue-50 transition-colors shadow-xl shadow-black/20 mb-4">
+                            Register Your Hospital →
+                        </a>
+                        <p class="text-center text-sm text-blue-300">
+                            Already registered? <a href="/login.html" class="text-white font-bold hover:underline">Sign In</a>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Card 2 — Patient -->
+                <div class="bg-white border-2 border-primary/20 p-10 rounded-xl relative overflow-hidden group">
+                    <div class="absolute -top-10 -right-10 text-9xl text-primary/5 font-bold group-hover:scale-110 transition-transform duration-500">👤</div>
+                    <div class="relative z-10">
+                        <div class="text-5xl mb-6">👤</div>
+                        <h3 class="text-2xl font-bold mb-3 text-navy font-display">I Need a Hospital</h3>
+                        <p class="text-slate-500 mb-8">Find the nearest hospital with available specialist right now</p>
+                        <ul class="space-y-3 mb-10">
+                            <li class="flex items-center gap-3 text-sm"><span class="text-primary font-bold">✓</span> No registration required</li>
+                            <li class="flex items-center gap-3 text-sm"><span class="text-primary font-bold">✓</span> Real-time availability</li>
+                            <li class="flex items-center gap-3 text-sm"><span class="text-primary font-bold">✓</span> Call or get directions instantly</li>
+                            <li class="flex items-center gap-3 text-sm"><span class="text-primary font-bold">✓</span> Works for families too</li>
+                        </ul>
+                        <a href="/patient.html" class="block w-full text-center bg-primary text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-xl shadow-blue-600/20 mb-4">
+                            Find Hospital Near Me →
+                        </a>
+                        <p class="text-center text-sm text-slate-400 font-medium">Free to use, always</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8 — FOOTER -->
+    <footer class="bg-navy text-white pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="text-blue-400" aria-hidden="true">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><path d="M9 11h2m2 0h2M11 9v2m0 2v2"/></svg>
+                        </div>
+                        <span class="text-xl font-display font-extrabold tracking-tight">HospiSync</span>
+                    </div>
+                    <p class="text-blue-200 text-sm mb-4 leading-relaxed">
+                        Intelligent Hospital Load Forecasting & Distribution
+                    </p>
+                    <p class="text-blue-300/60 text-xs font-semibold uppercase tracking-widest">
+                        Built for India's healthcare system
+                    </p>
+                </div>
+                
+                <!-- Links -->
+                <div class="flex flex-col gap-4 text-blue-200 font-medium">
+                    <a href="#" class="hover:text-white transition-colors">For Hospitals</a>
+                    <a href="/patient.html" class="hover:text-white transition-colors">For Patients</a>
+                    <a href="/login.html" class="hover:text-white transition-colors">Login</a>
+                </div>
+                
+                <!-- Copyright & Tech -->
+                <div class="md:text-right">
+                    <div class="text-blue-200 mb-2">© 2026 HospiSync</div>
+                    <div class="text-blue-400/60 text-xs font-bold uppercase tracking-widest">Built with Java Spring Boot</div>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-white/5 text-center text-blue-300 text-[10px] items-center flex justify-center gap-2 font-bold uppercase tracking-[0.3em] opacity-40">
+                Authorized Access Only
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
